@@ -45,12 +45,12 @@ sh -c "aws s3 sync ${SOURCE_DIR:-.} s3://${AWS_S3_BUCKET}/${DEST_DIR} \
               --no-progress \
               ${ENDPOINT_APPEND} $*"
 
-dest_dir=$(echo ${DEST_DIR} | sed -e "s/\///g")
+dest_dir="/$(echo ${DEST_DIR} | sed -e "s/\///g")"
 # Rename xxx.html to xxx, then upload to s3 with Content-type: text/html
 for src_file in $(\find . -name '*.html'); do
-  dest_file=$(echo $src_file | sed -e 's/\.html$//g' | sed -e "s/\.\/${SOURCE_DIR}\///g")
+  dest_file=$(echo $src_file | sed -e 's/\.html$//g' | sed -e "s/\.\/${SOURCE_DIR}//g")
   [ "x${DEST_DIR}" != "x" ] && dest_file="/${dest_file}"
-  sh -c "aws s3 cp ${src_file} s3://${AWS_S3_BUCKET}/${dest_dir}/${dest_file} \
+  sh -c "aws s3 cp ${src_file} s3://${AWS_S3_BUCKET}${dest_dir}${dest_file} \
               --content-type text/html"
 done
 
