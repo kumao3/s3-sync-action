@@ -47,7 +47,7 @@ sh -c "aws s3 sync ${SOURCE_DIR:-.} s3://${AWS_S3_BUCKET}/${DEST_DIR} \
 
 # Rename xxx.html to xxx, then upload to s3 with Content-type: text/html
 for src_file in $(\find . -name '*.html'); do
-  dest_file=$(echo $file | sed -e "s/\.html//g")
+  dest_file=$(echo $src_file | sed -e 's/\.html$//g')
   sh -c "aws s3 cp ${src_file} s3://${AWS_S3_BUCKET}/${DEST_DIR}/${dest_file} \
               --content-type text/html"
 done
