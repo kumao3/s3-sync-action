@@ -1,5 +1,6 @@
 #!/bin/sh
 
+set -x
 set -e
 
 if [ -z "$AWS_S3_BUCKET" ]; then
@@ -43,6 +44,13 @@ sh -c "aws s3 sync ${SOURCE_DIR:-.} s3://${AWS_S3_BUCKET}/${DEST_DIR} \
               --profile s3-sync-action \
               --no-progress \
               ${ENDPOINT_APPEND} $*"
+
+# Rename xxx.html to xxx, then upload to s3 with Content-type: text/html
+for src_file in $(\find . -name '*.html'); do
+  dest_file=$(echo $file | sed -e 's/\.html$//g')
+  sh -c "aws s3 cp ${SOURCE_DIR:-.}/${src_file} s3://${AWS_S3_BUCKET}/${DEST_DIR}/${dest_file} \
+              --content-type text/html"
+done
 
 # Clear out credentials after we're done.
 # We need to re-run `aws configure` with bogus input instead of
